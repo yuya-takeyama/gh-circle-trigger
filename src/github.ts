@@ -3,78 +3,14 @@ import escapeStringRegexp from 'escape-string-regexp';
 import { Request } from 'express';
 import { BuildResult } from './circleci';
 import { Config } from './config';
-
-export type WebhookRequest =
-  | PullRequestEvent
-  | IssueCommentEvent
-  | GithubWebhookEvent;
-
-type TargetGithubEvent = PullRequestEvent | IssueCommentEvent;
-
-export interface PullRequestEvent {
-  event: 'pull_request';
-  payload: PullRequestEventPayload;
-}
-
-export interface IssueCommentEvent {
-  event: 'issue_comment';
-  payload: IssueCommentEventPayload;
-}
-
-interface GithubWebhookEvent {
-  event: string | undefined;
-  payload: GithubWebhookEventPayload;
-}
-
-interface PullRequestEventPayload extends GithubWebhookEventPayload {
-  pull_request: PullRequestEntity;
-  repository: RepositoryEntity;
-  [keys: string]: any;
-}
-
-interface PullRequestEntity {
-  url: string;
-  id: number;
-  body: string;
-  comments_url: string;
-  head: BranchEntity;
-  base: BranchEntity;
-  [keys: string]: any;
-}
-
-interface IssueCommentEventPayload extends GithubWebhookEventPayload {
-  issue: IssueEntity;
-  comment: CommentEntity;
-  repository: RepositoryEntity;
-  [keys: string]: any;
-}
-
-interface GithubWebhookEventPayload {
-  action: string;
-  [keys: string]: any;
-}
-
-interface RepositoryEntity {
-  full_name: string;
-  [keys: string]: any;
-}
-
-interface IssueEntity {
-  url: string;
-  comments_url: string;
-  pull_request: PullRequestEntity;
-  [keys: string]: any;
-}
-
-interface CommentEntity {
-  body: string;
-  [keys: string]: any;
-}
-
-interface BranchEntity {
-  ref: string;
-  [keys: string]: any;
-}
+import {
+  GithubWebhookEvent,
+  GithubWebhookEventPayload,
+  IssueCommentEvent,
+  PullRequestEntity,
+  PullRequestEvent,
+  TargetGithubEvent,
+} from './interfaces/github';
 
 export interface BuildParameter {
   repository: string;
