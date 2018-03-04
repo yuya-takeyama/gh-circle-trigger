@@ -18,7 +18,7 @@
       "description": "Prefix of a word to trigger builds",
       "value": "@ghcirclebot trigger"
     },
-    "NPM_CONFIG_PRODUCTION:": {
+    "NPM_CONFIG_PRODUCTION": {
       "description": "This is to make it works properly on Heroku (don't modify).",
       "value": "false"
     }
