@@ -1,9 +1,7 @@
-import axios from 'axios';
 import bodyParser from 'body-parser';
-import { eventNames } from 'cluster';
 import express, { Request, Response } from 'express';
-import { triggerBuild } from './circleci';
-import { Config, loadConfig } from './config';
+import Circleci from './Circleci';
+import { loadConfig } from './config';
 import Github, { loadWebhookEvent } from './Github';
 import { ensureError } from './utils';
 
@@ -11,16 +9,18 @@ const app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
+const config = loadConfig();
+const github = Github.fromConfig(config);
+const circleci = Circleci.fromConfig(config);
+
 app.post('/webhook', async (req: Request, res: Response) => {
   res.type('txt');
 
   try {
-    const config: Config = app.get('config');
-    const github = Github.fromConfig(config);
     const event = loadWebhookEvent(req);
     const buildParam = await github.paraseBuildParameter(event);
     if (buildParam && buildParam.job) {
-      const buildResult = await triggerBuild(buildParam, config);
+      const buildResult = await circleci.triggerBuild(buildParam);
       await github.notifyBuildUrl(buildParam.pullRequest, buildResult);
       res.send(`Trigger: ${buildParam.job}, Branch: ${buildParam.branch}`);
     } else {
@@ -32,8 +32,5 @@ app.post('/webhook', async (req: Request, res: Response) => {
     res.send(`Failed: ${error.message}`);
   }
 });
-
-const config = loadConfig();
-app.set('config', config);
 
 export default app;

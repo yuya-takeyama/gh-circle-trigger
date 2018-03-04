@@ -1,7 +1,7 @@
 import axios from 'axios';
 import escapeStringRegexp from 'escape-string-regexp';
 import { Request } from 'express';
-import { BuildResult } from './circleci';
+import { BuildResult } from './Circleci';
 import { Config } from './config';
 import {
   GithubWebhookEvent,
