@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { Config } from './config';
-import { BuildParameter } from './github';
+import { BuildParameter } from './Github';
 import { ensureError } from './utils';
 
 export interface BuildResult {
