@@ -8,7 +8,7 @@
   ],
   "repository": "https://github.com/yuya-takeyama/gh-circle-trigger",
   "env": {
-    "GITHUB_ACCESS_TOKEN:": {
+    "GITHUB_ACCESS_TOKEN": {
       "description": "Access token of GitHub API"
     },
     "CIRCLE_API_TOKEN": {
