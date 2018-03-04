@@ -27,7 +27,9 @@ export default class Circleci {
       }
 
       const res = await this.post(this.triggerApiUrl(param), {
-        'build_parameters[CIRCLE_JOB]': param.job,
+        build_parameters: {
+          CIRCLE_JOB: param.job,
+        },
       });
 
       if (typeof res.data.build_url === 'string') {
