@@ -1,7 +1,7 @@
 import moxios from 'moxios';
 import { BuildResult, triggerBuild } from './circleci';
 import { Config } from './config';
-import { BuildParameter } from './github';
+import { BuildParameter } from './Github';
 
 describe('circleci', () => {
   describe('#triggerBuild', () => {

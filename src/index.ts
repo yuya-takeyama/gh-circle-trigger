@@ -4,11 +4,7 @@ import { eventNames } from 'cluster';
 import express, { Request, Response } from 'express';
 import { triggerBuild } from './circleci';
 import { Config, loadConfig } from './config';
-import {
-  loadWebhookEvent,
-  notifyBuildUrl,
-  paraseBuildParameter,
-} from './github';
+import Github, { loadWebhookEvent } from './Github';
 import { ensureError } from './utils';
 
 const app = express();
@@ -19,15 +15,13 @@ app.post('/webhook', async (req: Request, res: Response) => {
   res.type('txt');
 
   try {
-    const webhookEvent = loadWebhookEvent(req);
     const config: Config = app.get('config');
-    const buildParam = await paraseBuildParameter(
-      webhookEvent,
-      app.get('config'),
-    );
+    const github = Github.fromConfig(config);
+    const event = loadWebhookEvent(req);
+    const buildParam = await github.paraseBuildParameter(event);
     if (buildParam && buildParam.job) {
       const buildResult = await triggerBuild(buildParam, config);
-      await notifyBuildUrl(buildParam.pullRequest, buildResult, config);
+      await github.notifyBuildUrl(buildParam.pullRequest, buildResult);
       res.send(`Trigger: ${buildParam.job}, Branch: ${buildParam.branch}`);
     } else {
       res.send('NOOP');

@@ -1,14 +1,15 @@
 import moxios from 'moxios';
 import { Config } from './config';
-import { BuildParameter, paraseBuildParameter, parseTargetJob } from './github';
+import Github, { BuildParameter, parseTargetJob } from './Github';
 import { IssueCommentEvent, PullRequestEvent } from './interfaces/github';
 
-describe('github', () => {
+describe('Github', () => {
   const config: Config = {
     githubAccessToken: 'github-access-token',
     circleApiToken: 'circle-api-token',
     triggerWord: '@triggerbot trigger',
   };
+  const github = Github.fromConfig(config);
 
   beforeEach(() => {
     moxios.install();
@@ -46,7 +47,7 @@ describe('github', () => {
 
       describe('without job name', () => {
         it('returns BuildParameter', async () => {
-          const buildParams = await paraseBuildParameter(event, config);
+          const buildParams = await github.paraseBuildParameter(event);
           const expected: BuildParameter = {
             branch: 'fix',
             repository: 'yuya-takeyama/gh-circle-trigger-proto',
@@ -60,7 +61,7 @@ describe('github', () => {
       describe('without job name', () => {
         it('returns BuildParameter', async () => {
           event.payload.pull_request.body = '@triggerbot trigger build';
-          const buildParams = await paraseBuildParameter(event, config);
+          const buildParams = await github.paraseBuildParameter(event);
           const expected: BuildParameter = {
             branch: 'fix',
             repository: 'yuya-takeyama/gh-circle-trigger-proto',
@@ -74,7 +75,7 @@ describe('github', () => {
       describe('action is not "opened"', () => {
         it('returns BuildParameter', async () => {
           event.payload.action = 'edited';
-          const buildParams = await paraseBuildParameter(event, config);
+          const buildParams = await github.paraseBuildParameter(event);
           expect(buildParams).toBeUndefined();
         });
       });
@@ -138,7 +139,7 @@ describe('github', () => {
 
       describe('without job name', () => {
         it('returns BuildParameter', async () => {
-          const buildParams = await paraseBuildParameter(event, config);
+          const buildParams = await github.paraseBuildParameter(event);
           const expected: BuildParameter = {
             pullRequest,
             branch: 'fix',
@@ -152,7 +153,7 @@ describe('github', () => {
       describe('with job name', () => {
         it('returns BuildParameter', async () => {
           event.payload.comment.body = '@triggerbot trigger build';
-          const buildParams = await paraseBuildParameter(event, config);
+          const buildParams = await github.paraseBuildParameter(event);
           const expected: BuildParameter = {
             pullRequest,
             branch: 'fix',
@@ -166,7 +167,7 @@ describe('github', () => {
       describe('when action is not "created"', () => {
         it('returns BuildParameter', async () => {
           event.payload.action = 'edited';
-          const buildParams = await paraseBuildParameter(event, config);
+          const buildParams = await github.paraseBuildParameter(event);
           expect(buildParams).toBeUndefined();
         });
       });
@@ -176,14 +177,20 @@ describe('github', () => {
   describe('#parseTargetJob', () => {
     describe('with trigger word', () => {
       it('returns job name', () => {
-        const job = parseTargetJob('@triggerbot trigger build', config);
+        const job = parseTargetJob(
+          '@triggerbot trigger build',
+          config.triggerWord,
+        );
         expect(job).toEqual('build');
       });
     });
 
     describe('with extra whitespaces', () => {
       it('returns job name', () => {
-        const job = parseTargetJob('   @triggerbot trigger   build   ', config);
+        const job = parseTargetJob(
+          '   @triggerbot trigger   build   ',
+          config.triggerWord,
+        );
         expect(job).toEqual('build');
       });
     });
@@ -192,7 +199,7 @@ describe('github', () => {
       it('returns job name', () => {
         const job = parseTargetJob(
           'foo\nbar\n@triggerbot trigger build',
-          config,
+          config.triggerWord,
         );
         expect(job).toEqual('build');
       });
