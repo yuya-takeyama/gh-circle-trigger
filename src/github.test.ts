@@ -1,12 +1,7 @@
 import moxios from 'moxios';
 import { Config } from './config';
-import {
-  BuildParameter,
-  IssueCommentEvent,
-  paraseBuildParameter,
-  parseTargetJob,
-  PullRequestEvent,
-} from './github';
+import { BuildParameter, paraseBuildParameter, parseTargetJob } from './github';
+import { IssueCommentEvent, PullRequestEvent } from './interfaces/github';
 
 describe('github', () => {
   const config: Config = {
