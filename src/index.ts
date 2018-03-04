@@ -9,13 +9,14 @@ const app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
+const config = loadConfig();
+const github = Github.fromConfig(config);
+const circleci = Circleci.fromConfig(config);
+
 app.post('/webhook', async (req: Request, res: Response) => {
   res.type('txt');
 
   try {
-    const config: Config = app.get('config');
-    const github = Github.fromConfig(config);
-    const circleci = Circleci.fromConfig(config);
     const event = loadWebhookEvent(req);
     const buildParam = await github.paraseBuildParameter(event);
     if (buildParam && buildParam.job) {
@@ -31,8 +32,5 @@ app.post('/webhook', async (req: Request, res: Response) => {
     res.send(`Failed: ${error.message}`);
   }
 });
-
-const config = loadConfig();
-app.set('config', config);
 
 export default app;
