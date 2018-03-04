@@ -1,0 +1,48 @@
+{
+  "name": "gh-circle-trigger",
+  "version": "0.0.1",
+  "description": "Trigger Circle CI builds from GitHub PullRequests's comment",
+  "main": "index.js",
+  "repository": "https://github.com/yuya-takeyama/gh-circle-trigger",
+  "author": "Yuya Takeyama <sign.of.the.wolf.pentagram@gmail.com>",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "build": "tsc",
+    "lint": "tslint --project tsconfig.json",
+    "pretty": "prettier --write 'src/**/*.ts'",
+    "start": "node index.js",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@types/escape-string-regexp": "^0.0.32",
+    "@types/express": "^4.11.1",
+    "@types/jest": "^22.1.4",
+    "@types/moxios": "^0.4.8",
+    "@types/node": "^9.4.6",
+    "jest": "^22.4.2",
+    "moxios": "^0.4.0",
+    "prettier": "^1.11.1",
+    "ts-jest": "^22.4.1",
+    "tslint": "^5.9.1",
+    "tslint-config-airbnb": "^5.7.0",
+    "tslint-config-prettier": "^1.9.0",
+    "typescript": "^2.7.2"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "body-parser": "^1.18.2",
+    "escape-string-regexp": "^1.0.5",
+    "express": "^4.16.2"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.ts$": "ts-jest"
+    },
+    "testRegex": "\\.test\\.ts$",
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ]
+  }
+}
