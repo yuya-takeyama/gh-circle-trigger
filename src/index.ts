@@ -2,7 +2,7 @@ import axios from 'axios';
 import bodyParser from 'body-parser';
 import { eventNames } from 'cluster';
 import express, { Request, Response } from 'express';
-import { triggerBuild } from './circleci';
+import Circleci from './Circleci';
 import { Config, loadConfig } from './config';
 import Github, { loadWebhookEvent } from './Github';
 import { ensureError } from './utils';
@@ -17,10 +17,11 @@ app.post('/webhook', async (req: Request, res: Response) => {
   try {
     const config: Config = app.get('config');
     const github = Github.fromConfig(config);
+    const circleci = Circleci.fromConfig(config);
     const event = loadWebhookEvent(req);
     const buildParam = await github.paraseBuildParameter(event);
     if (buildParam && buildParam.job) {
-      const buildResult = await triggerBuild(buildParam, config);
+      const buildResult = await circleci.triggerBuild(buildParam, config);
       await github.notifyBuildUrl(buildParam.pullRequest, buildResult);
       res.send(`Trigger: ${buildParam.job}, Branch: ${buildParam.branch}`);
     } else {
