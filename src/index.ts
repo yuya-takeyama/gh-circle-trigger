@@ -20,7 +20,14 @@ app.post('/webhook', async (req: Request, res: Response) => {
     const event = loadWebhookEvent(req);
     const buildParam = await github.paraseBuildParameter(event);
     if (buildParam && buildParam.job) {
-      const buildResult = await circleci.triggerBuild(buildParam);
+      const buildResult = await circleci.triggerBuild(buildParam).catch(err => {
+        const error = ensureError(err);
+        github.postPullRequestComment(
+          buildParam.pullRequest,
+          `Failed to trigger a build: ${error.message}`,
+        );
+        throw error;
+      });
       await github.notifyBuildUrl(buildParam.pullRequest, buildResult);
       res.send(`Trigger: ${buildParam.job}, Branch: ${buildParam.branch}`);
     } else {
