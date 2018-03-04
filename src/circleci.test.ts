@@ -1,5 +1,5 @@
 import moxios from 'moxios';
-import { triggerBuild, BuildResult } from './circleci';
+import { BuildResult, triggerBuild } from './circleci';
 import { Config } from './config';
 import { BuildParameter } from './github';
 
