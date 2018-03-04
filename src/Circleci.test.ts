@@ -55,7 +55,7 @@ describe('Circleci', () => {
       );
 
       it('returns BuildResult', async () => {
-        const buildResult = await circleci.triggerBuild(buildParams, config);
+        const buildResult = await circleci.triggerBuild(buildParams);
         const expected: BuildResult = {
           buildUrl:
             'https://circleci.com/gh/yuya-takeyama/gh-circle-trigger-proto/14',
@@ -68,7 +68,7 @@ describe('Circleci', () => {
       it('rejects with an error', async () => {
         buildParams.job = undefined;
         const error: Error = await circleci
-          .triggerBuild(buildParams, config)
+          .triggerBuild(buildParams)
           .catch(e => e);
         expect(error).toBeInstanceOf(Error);
         expect(error.message).toMatch(/job is not specified/);

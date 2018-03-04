@@ -18,10 +18,7 @@ export default class Circleci {
     this.apiToken = apiToken;
   }
 
-  async triggerBuild(
-    param: BuildParameter,
-    config: Config,
-  ): Promise<BuildResult> {
+  async triggerBuild(param: BuildParameter): Promise<BuildResult> {
     try {
       if (typeof param.job !== 'string') {
         return Promise.reject(

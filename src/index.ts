@@ -1,6 +1,4 @@
-import axios from 'axios';
 import bodyParser from 'body-parser';
-import { eventNames } from 'cluster';
 import express, { Request, Response } from 'express';
 import Circleci from './Circleci';
 import { Config, loadConfig } from './config';
@@ -21,7 +19,7 @@ app.post('/webhook', async (req: Request, res: Response) => {
     const event = loadWebhookEvent(req);
     const buildParam = await github.paraseBuildParameter(event);
     if (buildParam && buildParam.job) {
-      const buildResult = await circleci.triggerBuild(buildParam, config);
+      const buildResult = await circleci.triggerBuild(buildParam);
       await github.notifyBuildUrl(buildParam.pullRequest, buildResult);
       res.send(`Trigger: ${buildParam.job}, Branch: ${buildParam.branch}`);
     } else {
