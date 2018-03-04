@@ -1,7 +1,7 @@
 import bodyParser from 'body-parser';
 import express, { Request, Response } from 'express';
 import Circleci from './Circleci';
-import { Config, loadConfig } from './config';
+import { loadConfig } from './config';
 import Github, { loadWebhookEvent } from './Github';
 import { ensureError } from './utils';
 
