@@ -5,9 +5,9 @@ import Github from './Github';
 import Handler from './Handler';
 import {
   GithubWebhookEvent,
-  PullRequestEvent,
   IssueCommentEvent,
   PullRequestEntity,
+  PullRequestEvent,
 } from './interfaces/github';
 
 describe('handler', () => {
