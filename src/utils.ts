@@ -38,3 +38,7 @@ export const isInvalidSignature = (
 
   return false;
 };
+
+export const decode = (url: string): string => {
+  return decodeURIComponent(url.replace(/\+/g, ' '));
+};

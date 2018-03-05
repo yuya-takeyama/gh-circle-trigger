@@ -1,10 +1,9 @@
-import bodyParser from 'body-parser';
 import express, { Request, Response } from 'express';
 import Circleci from './Circleci';
 import { loadConfig } from './config';
 import Github, { loadWebhookEvent } from './Github';
 import Handler from './Handler';
-import { ensureError, isInvalidSignature } from './utils';
+import { decode, ensureError, isInvalidSignature } from './utils';
 
 const app = express();
 const config = loadConfig();
@@ -13,15 +12,40 @@ const handler = new Handler(
   Circleci.fromConfig(config),
 );
 
-app.use(bodyParser.urlencoded({ extended: true }));
+export interface RequestWithRawBody extends Request {
+  rawBody?: string;
+  body: { [keys: string]: any };
+}
 
-app.post('/webhook', async (req: Request, res: Response) => {
+app.use((req: RequestWithRawBody, _, next) => {
+  req.rawBody = '';
+  req.setEncoding('utf8');
+
+  req.on('data', chunk => {
+    req.rawBody = `${req.rawBody}${chunk}`;
+  });
+
+  req.on('end', () => {
+    if (typeof req.rawBody === 'string') {
+      req.body = req.rawBody
+        .split('&')
+        .reduce<{ [keys: string]: any }>((acc, keyValue) => {
+          const [key, value] = keyValue.split('=');
+          acc[decode(key)] = decode(value);
+          return acc;
+        }, {});
+    }
+    next();
+  });
+});
+
+app.post('/webhook', async (req: RequestWithRawBody, res: Response) => {
   res.type('txt');
 
   try {
     if (
       isInvalidSignature(
-        typeof req.body.payload === 'string' ? req.body.payload : '',
+        typeof req.rawBody === 'string' ? req.rawBody : '',
         req.header('X-Hub-Signature'),
         process.env.GH_CIRCLE_TRIGGER_WEBHOOK_SECRET,
       )

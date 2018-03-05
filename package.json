@@ -31,7 +31,6 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
-    "body-parser": "^1.18.2",
     "escape-string-regexp": "^1.0.5",
     "express": "^4.16.2"
   },
