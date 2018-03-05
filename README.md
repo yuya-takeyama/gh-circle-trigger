@@ -20,6 +20,9 @@ This triggers a job named `deploy_staging` defined in the Circle CI config file.
 
 * Payload URL: `https://URL/webhook`
 * Content type: `application/x-www-form-urlencoded`
+* Secret (Optional)
+  * When you'd like to protect the app by verifying requests, specify a secret key.
+  * Set the same environment variable named `GH_CIRCLE_TRIGGER_WEBHOOK_SECRET`.
 * Events
   * Select `Let me select individual events.`
     * Issue comment
