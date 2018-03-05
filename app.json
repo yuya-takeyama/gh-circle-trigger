@@ -18,6 +18,10 @@
       "description": "Prefix of a word to trigger builds",
       "value": "@ghcirclebot trigger"
     },
+    "GH_CIRCLE_TRIGGER_WEBHOOK_SECRET": {
+      "description": "When you'd like to protect the app by verifying requests, specify a secret key the same as webhook config on GitHub",
+      "required": false
+    },
     "NPM_CONFIG_PRODUCTION": {
       "description": "This is to make it works properly on Heroku (don't modify).",
       "value": "false"
