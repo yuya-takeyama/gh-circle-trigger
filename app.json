@@ -15,8 +15,8 @@
       "description": "Access token of Circle CI API"
     },
     "GH_CIRCLE_TRIGGER_TRIGGER_WORD": {
-      "description": "Prefix of a word to trigger builds",
-      "value": "@ghcirclebot trigger"
+      "description": "Prefix of a word to trigger commands",
+      "value": "@ghcirclebot"
     },
     "GH_CIRCLE_TRIGGER_WEBHOOK_SECRET": {
       "description": "When you'd like to protect the app by verifying requests, specify a secret key the same as webhook config on GitHub",
