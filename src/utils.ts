@@ -46,3 +46,17 @@ export const decode = (url: string | undefined): string => {
 
   return decodeURIComponent(url.replace(/\+/g, ' '));
 };
+
+export const allowedJobs = (
+  fromConfig: string | undefined,
+  fromQuery: string | undefined,
+): string[] => {
+  if (typeof fromQuery === 'string') {
+    return fromQuery.split(',');
+  }
+  if (typeof fromConfig === 'string') {
+    return fromConfig.split(',');
+  }
+
+  return [];
+};

@@ -12,9 +12,17 @@ export default class Handler {
     this.circleci = circleci;
   }
 
-  async handle(event: GithubWebhookEvent): Promise<string> {
+  async handle(
+    event: GithubWebhookEvent,
+    allowedJobs: string[],
+  ): Promise<string> {
     const buildParam = await this.github.paraseBuildParameter(event);
     if (buildParam && buildParam.job) {
+      if (this.isNotAllowed(buildParam.job, allowedJobs)) {
+        await this.github.postJobNotAllowedMessage(buildParam, allowedJobs);
+        return `Not allowed: ${buildParam.job}`;
+      }
+
       const buildResult = await this.circleci
         .triggerBuild(buildParam)
         .catch(async err => {
@@ -27,6 +35,13 @@ export default class Handler {
     }
 
     return 'NOOP';
+  }
+
+  private isNotAllowed(job: string, allowedJobs: string[]): boolean {
+    return (
+      allowedJobs.length > 0 &&
+      !allowedJobs.find(allowedJob => allowedJob === job)
+    );
   }
 
   private async postErrorMessageToGithub(

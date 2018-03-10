@@ -2,6 +2,7 @@ export interface Config {
   githubAccessToken: string;
   circleApiToken: string;
   triggerWord: string;
+  allowedJobs?: string;
 }
 
 export const loadConfig = (): Config => {
@@ -21,5 +22,6 @@ export const loadConfig = (): Config => {
     githubAccessToken: process.env.GITHUB_ACCESS_TOKEN,
     circleApiToken: process.env.CIRCLE_API_TOKEN,
     triggerWord: process.env.GH_CIRCLE_TRIGGER_TRIGGER_WORD,
+    allowedJobs: process.env.GH_CIRCLE_TRIGGER_ALLOWED_JOBS,
   };
 };

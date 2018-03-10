@@ -3,7 +3,7 @@ import Circleci from './Circleci';
 import { loadConfig } from './config';
 import Github, { loadWebhookEvent } from './Github';
 import Handler from './Handler';
-import { decode, ensureError, isInvalidSignature } from './utils';
+import { allowedJobs, decode, ensureError, isInvalidSignature } from './utils';
 
 const app = express();
 const config = loadConfig();
@@ -55,7 +55,10 @@ app.post('/webhook', async (req: RequestWithRawBody, res: Response) => {
     }
 
     const event = loadWebhookEvent(req);
-    const result = await handler.handle(event);
+    const result = await handler.handle(
+      event,
+      allowedJobs(config.allowedJobs, req.query.allowed_jobs),
+    );
     res.send(result);
   } catch (err) {
     const error = ensureError(err);

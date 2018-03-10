@@ -1,4 +1,4 @@
-import { isInvalidSignature } from './utils';
+import { allowedJobs, isInvalidSignature } from './utils';
 
 describe('utils', () => {
   describe('isInvalidSignature', () => {
@@ -37,6 +37,31 @@ describe('utils', () => {
             ),
           ).toBe(true);
         });
+      });
+    });
+  });
+
+  describe('allowedJobs', () => {
+    describe('when both of them are not specified', () => {
+      it('returns an empty array', () => {
+        expect(allowedJobs(undefined, undefined)).toEqual([]);
+      });
+    });
+
+    describe('when both of them are specified', () => {
+      it('returns an array of fromQuery', () => {
+        expect(allowedJobs('a,b,c', 'd,e,f')).toEqual(['d', 'e', 'f']);
+      });
+    });
+
+    describe('when only fromConfig is specified', () => {
+      it('returns an array of fromConfig', () => {
+        expect(allowedJobs('a,b,c', undefined)).toEqual(['a', 'b', 'c']);
+      });
+    });
+    describe('when only fromQuery is specified', () => {
+      it('returns an array of fromQuery', () => {
+        expect(allowedJobs(undefined, 'd,e,f')).toEqual(['d', 'e', 'f']);
       });
     });
   });
