@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import escapeStringRegexp from 'escape-string-regexp';
 
 export const ensureError = (err: Error | string | any): Error => {
   if (err instanceof Error) {
@@ -59,4 +60,16 @@ export const allowedJobs = (
   }
 
   return [];
+};
+
+export const parseTargetJob = (
+  body: string,
+  triggerWord: string,
+): string | undefined => {
+  const pattern = `^\\s*${escapeStringRegexp(triggerWord)}\\s+([a-zA-Z_\\-]+)`;
+  const regexp = new RegExp(pattern, 'm');
+  const matches = body.match(regexp);
+  if (matches) {
+    return matches[1];
+  }
 };

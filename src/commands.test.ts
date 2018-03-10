@@ -1,15 +1,17 @@
 import moxios from 'moxios';
+import { CommandParser, NoopCommand, TriggerCommand } from './commands';
 import { Config } from './config';
-import Github, { BuildParameter, parseTargetJob } from './Github';
+import Github from './Github';
 import { IssueCommentEvent, PullRequestEvent } from './interfaces/github';
 
-describe('Github', () => {
+describe('Commandparser', () => {
   const config: Config = {
     githubAccessToken: 'github-access-token',
     circleApiToken: 'circle-api-token',
     triggerWord: '@triggerbot trigger',
   };
   const github = Github.fromConfig(config);
+  const commandParser = new CommandParser(github, '@triggerbot trigger');
 
   beforeEach(() => {
     moxios.install();
@@ -19,7 +21,7 @@ describe('Github', () => {
     moxios.uninstall();
   });
 
-  describe('#paraseBuildParameter', () => {
+  describe('#parse', () => {
     describe('with PullRequestEvent', () => {
       const event: PullRequestEvent = {
         event: 'pull_request',
@@ -46,37 +48,33 @@ describe('Github', () => {
       };
 
       describe('without job name', () => {
-        it('returns BuildParameter', async () => {
-          const buildParams = await github.paraseBuildParameter(event);
-          const expected: BuildParameter = {
-            branch: 'fix',
-            repository: 'yuya-takeyama/gh-circle-trigger-proto',
-            pullRequest: event.payload.pull_request,
-            job: undefined,
-          };
-          expect(buildParams).toEqual(expected);
+        it('returns NoopCommand', async () => {
+          const command = await commandParser.parse(event);
+          const expected: NoopCommand = { type: 'noop' };
+          expect(command).toEqual(expected);
         });
       });
 
       describe('without job name', () => {
-        it('returns BuildParameter', async () => {
+        it('returns TriggerCommand', async () => {
           event.payload.pull_request.body = '@triggerbot trigger build';
-          const buildParams = await github.paraseBuildParameter(event);
-          const expected: BuildParameter = {
+          const command = await commandParser.parse(event);
+          const expected: TriggerCommand = {
+            type: 'trigger',
             branch: 'fix',
             repository: 'yuya-takeyama/gh-circle-trigger-proto',
             pullRequest: event.payload.pull_request,
             job: 'build',
           };
-          expect(buildParams).toEqual(expected);
+          expect(command).toEqual(expected);
         });
       });
 
       describe('action is not "opened"', () => {
-        it('returns BuildParameter', async () => {
+        it('returns NoopCommand', async () => {
           event.payload.action = 'edited';
-          const buildParams = await github.paraseBuildParameter(event);
-          expect(buildParams).toBeUndefined();
+          const command = await commandParser.parse(event);
+          expect(command).toEqual({ type: 'noop' });
         });
       });
     });
@@ -138,70 +136,35 @@ describe('Github', () => {
       });
 
       describe('without job name', () => {
-        it('returns BuildParameter', async () => {
-          const buildParams = await github.paraseBuildParameter(event);
-          const expected: BuildParameter = {
-            pullRequest,
-            branch: 'fix',
-            repository: 'yuya-takeyama/gh-circle-trigger-proto',
-            job: undefined,
-          };
-          expect(buildParams).toEqual(expected);
+        it('returns NoopCommand', async () => {
+          const command = await commandParser.parse(event);
+          const expected: NoopCommand = { type: 'noop' };
+          expect(command).toEqual(expected);
         });
       });
 
       describe('with job name', () => {
-        it('returns BuildParameter', async () => {
+        it('returns TriggerCommand', async () => {
           event.payload.comment.body = '@triggerbot trigger build';
-          const buildParams = await github.paraseBuildParameter(event);
-          const expected: BuildParameter = {
+          const command = await commandParser.parse(event);
+          const expected: TriggerCommand = {
             pullRequest,
+            type: 'trigger',
             branch: 'fix',
             repository: 'yuya-takeyama/gh-circle-trigger-proto',
             job: 'build',
           };
-          expect(buildParams).toEqual(expected);
+          expect(command).toEqual(expected);
         });
       });
 
       describe('when action is not "created"', () => {
-        it('returns BuildParameter', async () => {
+        it('returns NoopCommand', async () => {
           event.payload.action = 'edited';
-          const buildParams = await github.paraseBuildParameter(event);
-          expect(buildParams).toBeUndefined();
+          const command = await commandParser.parse(event);
+          const expected: NoopCommand = { type: 'noop' };
+          expect(command).toEqual(expected);
         });
-      });
-    });
-  });
-
-  describe('#parseTargetJob', () => {
-    describe('with trigger word', () => {
-      it('returns job name', () => {
-        const job = parseTargetJob(
-          '@triggerbot trigger build',
-          config.triggerWord,
-        );
-        expect(job).toEqual('build');
-      });
-    });
-
-    describe('with extra whitespaces', () => {
-      it('returns job name', () => {
-        const job = parseTargetJob(
-          '   @triggerbot trigger   build   ',
-          config.triggerWord,
-        );
-        expect(job).toEqual('build');
-      });
-    });
-
-    describe('with more lines at the beginning', () => {
-      it('returns job name', () => {
-        const job = parseTargetJob(
-          'foo\nbar\n@triggerbot trigger build',
-          config.triggerWord,
-        );
-        expect(job).toEqual('build');
       });
     });
   });

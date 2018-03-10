@@ -1,7 +1,7 @@
-import { allowedJobs, isInvalidSignature } from './utils';
+import { allowedJobs, isInvalidSignature, parseTargetJob } from './utils';
 
 describe('utils', () => {
-  describe('isInvalidSignature', () => {
+  describe('#isInvalidSignature', () => {
     describe('when webhookSecret is not specified', () => {
       it('returns false', () => {
         expect(isInvalidSignature('', undefined, undefined)).toBe(false);
@@ -41,7 +41,7 @@ describe('utils', () => {
     });
   });
 
-  describe('allowedJobs', () => {
+  describe('#allowedJobs', () => {
     describe('when both of them are not specified', () => {
       it('returns an empty array', () => {
         expect(allowedJobs(undefined, undefined)).toEqual([]);
@@ -62,6 +62,38 @@ describe('utils', () => {
     describe('when only fromQuery is specified', () => {
       it('returns an array of fromQuery', () => {
         expect(allowedJobs(undefined, 'd,e,f')).toEqual(['d', 'e', 'f']);
+      });
+    });
+  });
+
+  describe('#parseTargetJob', () => {
+    describe('with trigger word', () => {
+      it('returns job name', () => {
+        const job = parseTargetJob(
+          '@triggerbot trigger build',
+          '@triggerbot trigger',
+        );
+        expect(job).toEqual('build');
+      });
+    });
+
+    describe('with extra whitespaces', () => {
+      it('returns job name', () => {
+        const job = parseTargetJob(
+          '   @triggerbot trigger   build   ',
+          '@triggerbot trigger',
+        );
+        expect(job).toEqual('build');
+      });
+    });
+
+    describe('with more lines at the beginning', () => {
+      it('returns job name', () => {
+        const job = parseTargetJob(
+          'foo\nbar\n@triggerbot trigger build',
+          '@triggerbot trigger',
+        );
+        expect(job).toEqual('build');
       });
     });
   });

@@ -1,6 +1,6 @@
 import axios from 'axios';
+import { TriggerCommand } from './commands';
 import { Config } from './config';
-import { BuildParameter } from './Github';
 import { ensureError } from './utils';
 
 export interface BuildResult {
@@ -18,17 +18,11 @@ export default class Circleci {
     this.apiToken = apiToken;
   }
 
-  async triggerBuild(param: BuildParameter): Promise<BuildResult> {
+  async triggerBuild(command: TriggerCommand): Promise<BuildResult> {
     try {
-      if (typeof param.job !== 'string') {
-        return Promise.reject(
-          new Error('Invalid build parameter: job is not specified'),
-        );
-      }
-
-      const res = await this.post(this.triggerApiUrl(param), {
+      const res = await this.post(this.triggerApiUrl(command), {
         build_parameters: {
-          CIRCLE_JOB: param.job,
+          CIRCLE_JOB: command.job,
         },
       });
 
@@ -54,9 +48,9 @@ export default class Circleci {
     });
   }
 
-  private triggerApiUrl(param: BuildParameter): string {
+  private triggerApiUrl(command: TriggerCommand): string {
     return `https://circleci.com/api/v1.1/project/github/${
-      param.repository
-    }/tree/${param.branch}`;
+      command.repository
+    }/tree/${command.branch}`;
   }
 }

@@ -1,7 +1,5 @@
 import moxios from 'moxios';
-import Circleci from './Circleci';
 import { Config } from './config';
-import Github from './Github';
 import Handler from './Handler';
 import {
   GithubWebhookEvent,
@@ -24,10 +22,7 @@ describe('handler', () => {
     circleApiToken: 'circleci_token',
     triggerWord: '@bot trigger',
   };
-  const handler = new Handler(
-    Github.fromConfig(config),
-    Circleci.fromConfig(config),
-  );
+  const handler = Handler.fromConfig(config);
 
   describe("when it's PullRequestEvent", () => {
     const event: PullRequestEvent = {
