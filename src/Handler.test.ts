@@ -79,6 +79,24 @@ describe('handler', () => {
 
           expect(result).toEqual('Trigger: the_job, Branch: fix');
         });
+
+        describe('when allowedJobs is not empty', () => {
+          describe('and the job is in allowedJobs', async () => {
+            it('returns the triggered job', async () => {
+              const result = await handler.handle(event, ['the_job']);
+
+              expect(result).toEqual('Trigger: the_job, Branch: fix');
+            });
+          });
+
+          describe('and the job is not in allowedJobs', async () => {
+            it('returns the triggered job', async () => {
+              const result = await handler.handle(event, ['not_the_job']);
+
+              expect(result).toEqual('Not allowed: the_job');
+            });
+          });
+        });
       });
 
       describe('and it failed to trigger the job', () => {
@@ -187,6 +205,24 @@ describe('handler', () => {
           const result = await handler.handle(event, []);
 
           expect(result).toEqual('Trigger: the_job, Branch: fix');
+        });
+
+        describe('when allowedJobs is not empty', () => {
+          describe('and the job is in allowedJobs', async () => {
+            it('returns the triggered job', async () => {
+              const result = await handler.handle(event, ['the_job']);
+
+              expect(result).toEqual('Trigger: the_job, Branch: fix');
+            });
+          });
+
+          describe('and the job is not in allowedJobs', async () => {
+            it('returns the triggered job', async () => {
+              const result = await handler.handle(event, ['not_the_job']);
+
+              expect(result).toEqual('Not allowed: the_job');
+            });
+          });
         });
       });
 

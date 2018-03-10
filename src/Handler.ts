@@ -18,7 +18,7 @@ export default class Handler {
   ): Promise<string> {
     const buildParam = await this.github.paraseBuildParameter(event);
     if (buildParam && buildParam.job) {
-      if (allowedJobs.find(job => job === buildParam.job)) {
+      if (this.isNotAllowed(buildParam.job, allowedJobs)) {
         await this.github.postJobNotAllowedMessage(buildParam, allowedJobs);
         return `Not allowed: ${buildParam.job}`;
       }
@@ -35,6 +35,13 @@ export default class Handler {
     }
 
     return 'NOOP';
+  }
+
+  private isNotAllowed(job: string, allowedJobs: string[]): boolean {
+    return (
+      allowedJobs.length > 0 &&
+      !allowedJobs.find(allowedJob => allowedJob === job)
+    );
   }
 
   private async postErrorMessageToGithub(
