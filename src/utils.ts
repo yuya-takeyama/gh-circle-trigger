@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import escapeStringRegexp from 'escape-string-regexp';
 
 export const ensureError = (err: Error | string | any): Error => {
   if (err instanceof Error) {
@@ -59,4 +60,41 @@ export const allowedJobs = (
   }
 
   return [];
+};
+
+export const DUMMY_JOB_NAME = 'CIRCLE_CI_JOB_NAME';
+
+type CommentCommand = TriggerCommentCommand | HelpCommentCommand;
+
+interface TriggerCommentCommand {
+  type: 'trigger';
+  job: string;
+}
+
+interface HelpCommentCommand {
+  type: 'help';
+}
+
+export const parseComment = (
+  body: string,
+  triggerWord: string,
+): CommentCommand | undefined => {
+  const pattern = `^\\s*${escapeStringRegexp(
+    triggerWord,
+  )}\\s+(?:(trigger)\\s+([a-zA-Z_\\-]+)|(help))`;
+  const regexp = new RegExp(pattern, 'm');
+  const matches = body.match(regexp);
+  if (matches) {
+    if (
+      matches[1] &&
+      matches[1] === 'trigger' &&
+      matches[2] &&
+      matches[2] !== DUMMY_JOB_NAME
+    ) {
+      return { type: 'trigger', job: matches[2] };
+    }
+    if (matches[3] && matches[3] === 'help') {
+      return { type: 'help' };
+    }
+  }
 };

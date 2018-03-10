@@ -1,16 +1,12 @@
 import express, { Request, Response } from 'express';
-import Circleci from './Circleci';
 import { loadConfig } from './config';
-import Github, { loadWebhookEvent } from './Github';
+import { loadWebhookEvent } from './Github';
 import Handler from './Handler';
 import { allowedJobs, decode, ensureError, isInvalidSignature } from './utils';
 
 const app = express();
 const config = loadConfig();
-const handler = new Handler(
-  Github.fromConfig(config),
-  Circleci.fromConfig(config),
-);
+const handler = Handler.fromConfig(config);
 
 export interface RequestWithRawBody extends Request {
   rawBody?: string;

@@ -1,7 +1,7 @@
 import moxios from 'moxios';
 import Circleci, { BuildResult } from './Circleci';
+import { TriggerCommand } from './commands';
 import { Config } from './config';
-import { BuildParameter } from './Github';
 
 describe('Circleci', () => {
   describe('#triggerBuild', () => {
@@ -27,8 +27,9 @@ describe('Circleci', () => {
       },
     };
 
-    const buildParams: BuildParameter = {
+    const command: TriggerCommand = {
       pullRequest,
+      type: 'trigger',
       branch: 'fix',
       repository: 'yuya-takeyama/gh-circle-trigger-proto',
       job: 'build',
@@ -55,23 +56,12 @@ describe('Circleci', () => {
       );
 
       it('returns BuildResult', async () => {
-        const buildResult = await circleci.triggerBuild(buildParams);
+        const buildResult = await circleci.triggerBuild(command);
         const expected: BuildResult = {
           buildUrl:
             'https://circleci.com/gh/yuya-takeyama/gh-circle-trigger-proto/14',
         };
         expect(buildResult).toEqual(expected);
-      });
-    });
-
-    describe('when job is undefined', () => {
-      it('rejects with an error', async () => {
-        buildParams.job = undefined;
-        const error: Error = await circleci
-          .triggerBuild(buildParams)
-          .catch(e => e);
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toMatch(/job is not specified/);
       });
     });
   });

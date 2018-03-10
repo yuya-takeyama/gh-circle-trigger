@@ -1,7 +1,12 @@
-import { allowedJobs, isInvalidSignature } from './utils';
+import {
+  allowedJobs,
+  DUMMY_JOB_NAME,
+  isInvalidSignature,
+  parseComment,
+} from './utils';
 
 describe('utils', () => {
-  describe('isInvalidSignature', () => {
+  describe('#isInvalidSignature', () => {
     describe('when webhookSecret is not specified', () => {
       it('returns false', () => {
         expect(isInvalidSignature('', undefined, undefined)).toBe(false);
@@ -41,7 +46,7 @@ describe('utils', () => {
     });
   });
 
-  describe('allowedJobs', () => {
+  describe('#allowedJobs', () => {
     describe('when both of them are not specified', () => {
       it('returns an empty array', () => {
         expect(allowedJobs(undefined, undefined)).toEqual([]);
@@ -62,6 +67,88 @@ describe('utils', () => {
     describe('when only fromQuery is specified', () => {
       it('returns an array of fromQuery', () => {
         expect(allowedJobs(undefined, 'd,e,f')).toEqual(['d', 'e', 'f']);
+      });
+    });
+  });
+
+  describe('#parseComment', () => {
+    describe('trigger command', () => {
+      describe('with trigger word', () => {
+        it('returns job name', () => {
+          const command = parseComment(
+            '@triggerbot trigger build',
+            '@triggerbot',
+          );
+          expect(command).toEqual({ type: 'trigger', job: 'build' });
+        });
+      });
+
+      describe('with extra whitespaces', () => {
+        it('returns job name', () => {
+          const command = parseComment(
+            '   @triggerbot trigger   build   ',
+            '@triggerbot',
+          );
+          expect(command).toEqual({ type: 'trigger', job: 'build' });
+        });
+      });
+
+      describe('with more lines at the beginning', () => {
+        it('returns job name', () => {
+          const command = parseComment(
+            'foo\nbar\n@triggerbot trigger build',
+            '@triggerbot',
+          );
+          expect(command).toEqual({ type: 'trigger', job: 'build' });
+        });
+      });
+
+      describe('when the job name is DUMMY_JOB_NAME', () => {
+        it('returns undefined', () => {
+          const command = parseComment(
+            `@triggerbot trigger ${DUMMY_JOB_NAME}`,
+            '@triggerbot',
+          );
+          expect(command).toBeUndefined();
+        });
+      });
+    });
+
+    describe('help command', () => {
+      describe('with trigger word', () => {
+        it('returns help command', () => {
+          const command = parseComment('@triggerbot help', '@triggerbot');
+          expect(command).toEqual({ type: 'help' });
+        });
+      });
+
+      describe('with extra white spaces', () => {
+        it('returns help command', () => {
+          const command = parseComment(
+            '   @triggerbot   help   ',
+            '@triggerbot',
+          );
+          expect(command).toEqual({ type: 'help' });
+        });
+      });
+
+      describe('with more lines at the beginning', () => {
+        it('returns help command', () => {
+          const command = parseComment(
+            'foo\nbar\n@triggerbot help',
+            '@triggerbot',
+          );
+          expect(command).toEqual({ type: 'help' });
+        });
+      });
+    });
+
+    describe('unknown command', () => {
+      describe('with unkonwn command', () => {
+        it('returns undefined', () => {
+          const command = parseComment('@triggerbot unknown', '@triggerbot');
+          expect(command).toBeUndefined();
+        });
       });
     });
   });
