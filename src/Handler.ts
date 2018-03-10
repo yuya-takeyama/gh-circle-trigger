@@ -74,10 +74,10 @@ export default class Handler {
     allowedJobs: string[],
   ): Promise<string> {
     let comment =
-      'You trigger commands by commenting like:\n\n' +
+      'You trigger commands by posting a comment like:\n\n' +
       '```\n' +
-      `${this.triggerWord} JOB` +
-      '```';
+      `${this.triggerWord} trigger CIRCLE_CI_JOB_NAME` +
+      '```\n';
 
     if (allowedJobs.length > 0) {
       comment +=
