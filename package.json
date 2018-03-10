@@ -12,7 +12,7 @@
     "lint": "tslint --project tsconfig.json",
     "postinstall": "yarn build",
     "pretty": "prettier --write 'src/**/*.ts'",
-    "start": "node index.js",
+    "start": "node build/index.js",
     "test": "jest"
   },
   "devDependencies": {
