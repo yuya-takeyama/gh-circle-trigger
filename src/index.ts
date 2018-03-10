@@ -55,7 +55,7 @@ app.post('/webhook', async (req: RequestWithRawBody, res: Response) => {
     }
 
     const event = loadWebhookEvent(req);
-    const result = await handler.handle(event);
+    const result = await handler.handle(event, []);
     res.send(result);
   } catch (err) {
     const error = ensureError(err);

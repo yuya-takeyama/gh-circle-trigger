@@ -69,6 +69,20 @@ export default class Github {
     );
   }
 
+  async postJobNotAllowedMessage(
+    buildParam: BuildParameter,
+    allowedJobs: string[],
+  ) {
+    return this.postPullRequestComment(
+      buildParam.pullRequest,
+      'The job `' +
+        buildParam.job +
+        '` is not allowed to trigger.\n' +
+        'Allowed jobs are:\n\n' +
+        allowedJobs.map(job => `* ${job}`).join('\n'),
+    );
+  }
+
   private async get(url: string) {
     return axios.get<{ [keys: string]: any }>(url, this.requestConfig());
   }

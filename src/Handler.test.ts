@@ -75,7 +75,7 @@ describe('handler', () => {
         });
 
         it('returns the triggered job', async () => {
-          const result = await handler.handle(event);
+          const result = await handler.handle(event, []);
 
           expect(result).toEqual('Trigger: the_job, Branch: fix');
         });
@@ -97,7 +97,7 @@ describe('handler', () => {
         });
 
         it('throws an error', async () => {
-          const err = await handler.handle(event).catch(err => err);
+          const err = await handler.handle(event, []).catch(err => err);
 
           expect(err.message).toEqual('Request failed with status code 403');
         });
@@ -105,7 +105,7 @@ describe('handler', () => {
     });
 
     describe('when it does not contain trigger word', async () => {
-      const result = await handler.handle(event);
+      const result = await handler.handle(event, []);
 
       expect(result).toEqual('NOOP');
     });
@@ -184,7 +184,7 @@ describe('handler', () => {
         });
 
         it('returns the triggered job', async () => {
-          const result = await handler.handle(event);
+          const result = await handler.handle(event, []);
 
           expect(result).toEqual('Trigger: the_job, Branch: fix');
         });
@@ -206,7 +206,7 @@ describe('handler', () => {
         });
 
         it('throws an error', async () => {
-          const err = await handler.handle(event).catch(err => err);
+          const err = await handler.handle(event, []).catch(err => err);
 
           expect(err.message).toEqual('Request failed with status code 403');
         });
@@ -214,7 +214,7 @@ describe('handler', () => {
     });
 
     describe('when it does not contain trigger word', async () => {
-      const result = await handler.handle(event);
+      const result = await handler.handle(event, []);
 
       expect(result).toEqual('NOOP');
     });
@@ -229,7 +229,7 @@ describe('handler', () => {
     };
 
     it('returns NOOP', async () => {
-      const result = await handler.handle(event);
+      const result = await handler.handle(event, []);
 
       expect(result).toEqual('NOOP');
     });
