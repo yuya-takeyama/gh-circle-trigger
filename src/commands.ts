@@ -6,7 +6,7 @@ import {
   PullRequestEvent,
   TargetGithubEvent,
 } from './interfaces/github';
-import { parseTargetJob } from './utils';
+import { parseComment } from './utils';
 
 export type Command = TriggerCommand | HelpCommand | NoopCommand;
 
@@ -20,6 +20,7 @@ export interface TriggerCommand {
 
 export interface HelpCommand {
   type: 'help';
+  pullRequest: PullRequestEntity;
 }
 
 export interface NoopCommand {
@@ -67,18 +68,26 @@ export class CommandParser {
   }
 
   private parsePullRequestEvent(event: PullRequestEvent): Command {
-    const job = parseTargetJob(
+    const command = parseComment(
       event.payload.pull_request.body,
       this.triggerWord,
     );
-    if (job) {
-      return {
-        job,
-        type: 'trigger',
-        branch: event.payload.pull_request.head.ref,
-        repository: event.payload.repository.full_name,
-        pullRequest: event.payload.pull_request,
-      };
+    if (command) {
+      if (command.type === 'trigger') {
+        return {
+          type: 'trigger',
+          job: command.job,
+          branch: event.payload.pull_request.head.ref,
+          repository: event.payload.repository.full_name,
+          pullRequest: event.payload.pull_request,
+        };
+      }
+      if (command.type === 'help') {
+        return {
+          type: 'help',
+          pullRequest: event.payload.pull_request,
+        };
+      }
     }
 
     return { type: 'noop' };
@@ -86,9 +95,9 @@ export class CommandParser {
 
   private async parseIssueCommentEvent(
     event: IssueCommentEvent,
-  ): Promise<TriggerCommand | NoopCommand> {
-    const job = parseTargetJob(event.payload.comment.body, this.triggerWord);
-    if (job === void 0) {
+  ): Promise<Command> {
+    const command = parseComment(event.payload.comment.body, this.triggerWord);
+    if (command === void 0) {
       return { type: 'noop' };
     }
 
@@ -96,12 +105,22 @@ export class CommandParser {
       event.payload.issue.pull_request.url,
     );
 
-    return {
-      job,
-      pullRequest,
-      type: 'trigger',
-      branch: pullRequest.head.ref,
-      repository: event.payload.repository.full_name,
-    };
+    if (command.type === 'trigger') {
+      return {
+        pullRequest,
+        job: command.job,
+        type: 'trigger',
+        branch: pullRequest.head.ref,
+        repository: event.payload.repository.full_name,
+      };
+    }
+    if (command.type === 'help') {
+      return {
+        pullRequest,
+        type: 'help',
+      };
+    }
+
+    return { type: 'noop' };
   }
 }

@@ -8,10 +8,10 @@ describe('Commandparser', () => {
   const config: Config = {
     githubAccessToken: 'github-access-token',
     circleApiToken: 'circle-api-token',
-    triggerWord: '@triggerbot trigger',
+    triggerWord: '@triggerbot',
   };
   const github = Github.fromConfig(config);
-  const commandParser = new CommandParser(github, '@triggerbot trigger');
+  const commandParser = new CommandParser(github, config.triggerWord);
 
   beforeEach(() => {
     moxios.install();

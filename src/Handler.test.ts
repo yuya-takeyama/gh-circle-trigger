@@ -20,7 +20,7 @@ describe('handler', () => {
   const config: Config = {
     githubAccessToken: 'github_token',
     circleApiToken: 'circleci_token',
-    triggerWord: '@bot trigger',
+    triggerWord: '@bot',
   };
   const handler = Handler.fromConfig(config);
 

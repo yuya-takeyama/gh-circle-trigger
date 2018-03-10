@@ -62,14 +62,32 @@ export const allowedJobs = (
   return [];
 };
 
-export const parseTargetJob = (
+type CommentCommand = TriggerCommentCommand | HelpCommentCommand;
+
+interface TriggerCommentCommand {
+  type: 'trigger';
+  job: string;
+}
+
+interface HelpCommentCommand {
+  type: 'help';
+}
+
+export const parseComment = (
   body: string,
   triggerWord: string,
-): string | undefined => {
-  const pattern = `^\\s*${escapeStringRegexp(triggerWord)}\\s+([a-zA-Z_\\-]+)`;
+): CommentCommand | undefined => {
+  const pattern = `^\\s*${escapeStringRegexp(
+    triggerWord,
+  )}\\s+(?:(trigger)\\s+([a-zA-Z_\\-]+)|(help))`;
   const regexp = new RegExp(pattern, 'm');
   const matches = body.match(regexp);
   if (matches) {
-    return matches[1];
+    if (matches[1] && matches[1] === 'trigger' && matches[2]) {
+      return { type: 'trigger', job: matches[2] };
+    }
+    if (matches[3] && matches[3] === 'help') {
+      return { type: 'help' };
+    }
   }
 };

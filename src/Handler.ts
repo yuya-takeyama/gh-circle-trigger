@@ -1,5 +1,5 @@
 import Circleci from './Circleci';
-import { CommandParser, TriggerCommand } from './commands';
+import { CommandParser, HelpCommand, TriggerCommand } from './commands';
 import { Config } from './config';
 import Github from './Github';
 import { GithubWebhookEvent } from './interfaces/github';
@@ -9,6 +9,7 @@ export default class Handler {
   private github: Readonly<Github>;
   private circleci: Readonly<Circleci>;
   private commandParser: Readonly<CommandParser>;
+  private triggerWord: Readonly<string>;
 
   static fromConfig(config: Config): Handler {
     const github = Github.fromConfig(config);
@@ -16,6 +17,7 @@ export default class Handler {
       github,
       Circleci.fromConfig(config),
       new CommandParser(github, config.triggerWord),
+      config.triggerWord,
     );
   }
 
@@ -23,10 +25,12 @@ export default class Handler {
     github: Github,
     circleci: Circleci,
     commandParser: CommandParser,
+    triggerWord: string,
   ) {
     this.github = github;
     this.circleci = circleci;
     this.commandParser = commandParser;
+    this.triggerWord = triggerWord;
   }
 
   async handle(
@@ -38,6 +42,9 @@ export default class Handler {
     if (command.type === 'trigger') {
       return this.handleTriggerCommand(command, allowedJobs);
     }
+    if (command.type === 'help') {
+      return this.handleHelpCommand(command, allowedJobs);
+    }
 
     return 'NOOP';
   }
@@ -45,7 +52,7 @@ export default class Handler {
   private async handleTriggerCommand(
     command: TriggerCommand,
     allowedJobs: string[],
-  ) {
+  ): Promise<string> {
     if (this.isNotAllowed(command.job, allowedJobs)) {
       await this.github.postJobNotAllowedMessage(command, allowedJobs);
       return `Not allowed: ${command.job}`;
@@ -60,6 +67,27 @@ export default class Handler {
       });
     await this.github.notifyBuildUrl(command.pullRequest, buildResult);
     return `Trigger: ${command.job}, Branch: ${command.branch}`;
+  }
+
+  private async handleHelpCommand(
+    command: HelpCommand,
+    allowedJobs: string[],
+  ): Promise<string> {
+    let comment =
+      'You trigger commands by commenting like:\n\n' +
+      '```\n' +
+      `${this.triggerWord} JOB` +
+      '```';
+
+    if (allowedJobs.length > 0) {
+      comment +=
+        '\n\nAllowed jobs:\n\n' +
+        allowedJobs.map(allowedJob => `* ${allowedJob}`).join('\n');
+    }
+
+    await this.github.postPullRequestComment(command.pullRequest, comment);
+
+    return `Help`;
   }
 
   private isNotAllowed(job: string, allowedJobs: string[]): boolean {
