@@ -1,4 +1,9 @@
-import { allowedJobs, isInvalidSignature, parseComment } from './utils';
+import {
+  allowedJobs,
+  DUMMY_JOB_NAME,
+  isInvalidSignature,
+  parseComment,
+} from './utils';
 
 describe('utils', () => {
   describe('#isInvalidSignature', () => {
@@ -95,6 +100,16 @@ describe('utils', () => {
             '@triggerbot',
           );
           expect(command).toEqual({ type: 'trigger', job: 'build' });
+        });
+      });
+
+      describe('when the job name is DUMMY_JOB_NAME', () => {
+        it('returns undefined', () => {
+          const command = parseComment(
+            `@triggerbot trigger ${DUMMY_JOB_NAME}`,
+            '@triggerbot',
+          );
+          expect(command).toBeUndefined();
         });
       });
     });

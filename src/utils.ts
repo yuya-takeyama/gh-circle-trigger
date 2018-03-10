@@ -62,6 +62,8 @@ export const allowedJobs = (
   return [];
 };
 
+export const DUMMY_JOB_NAME = 'CIRCLE_CI_JOB_NAME';
+
 type CommentCommand = TriggerCommentCommand | HelpCommentCommand;
 
 interface TriggerCommentCommand {
@@ -83,7 +85,12 @@ export const parseComment = (
   const regexp = new RegExp(pattern, 'm');
   const matches = body.match(regexp);
   if (matches) {
-    if (matches[1] && matches[1] === 'trigger' && matches[2]) {
+    if (
+      matches[1] &&
+      matches[1] === 'trigger' &&
+      matches[2] &&
+      matches[2] !== DUMMY_JOB_NAME
+    ) {
       return { type: 'trigger', job: matches[2] };
     }
     if (matches[3] && matches[3] === 'help') {

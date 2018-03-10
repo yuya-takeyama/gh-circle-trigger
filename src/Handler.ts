@@ -3,7 +3,7 @@ import { CommandParser, HelpCommand, TriggerCommand } from './commands';
 import { Config } from './config';
 import Github from './Github';
 import { GithubWebhookEvent } from './interfaces/github';
-import { ensureError } from './utils';
+import { DUMMY_JOB_NAME, ensureError } from './utils';
 
 export default class Handler {
   private github: Readonly<Github>;
@@ -74,10 +74,10 @@ export default class Handler {
     allowedJobs: string[],
   ): Promise<string> {
     let comment =
-      'You trigger commands by posting a comment like:\n\n' +
+      'You can trigger a Circle CI job by posting a comment like:\n\n' +
       '```\n' +
-      `${this.triggerWord} trigger CIRCLE_CI_JOB_NAME` +
-      '```\n';
+      `${this.triggerWord} trigger ${DUMMY_JOB_NAME}\n` +
+      '```';
 
     if (allowedJobs.length > 0) {
       comment +=
